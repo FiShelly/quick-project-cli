@@ -221,17 +221,17 @@ function createApplication (app_name, path) {
 
     // JavaScript
     const mainJs = loadTemplate('src/main.js');
-    const webpackConfig = loadTemplate('webpack.config.js');
-    const webpackBuild = loadTemplate('webpack.build.js');
-    const server = loadTemplate('server.js');
+    const webpackConfig = loadTemplate('file/webpack.config.js');
+    const webpackBuild = loadTemplate('file/webpack.build.js');
+    const server = loadTemplate('file/server.js');
 
     //html
-    const index = loadTemplate('index.html');
+    const index = loadTemplate('file/index.html');
     const indexTpl = loadTemplate('static/html/index.html');
 
     //config
-    const baberlrc = loadTemplate('.babelrc');
-    const gitignore = loadTemplate('.gitignore');
+    const baberlrc = loadTemplate('file/babelrc');
+    const gitignore = loadTemplate('file/gitignore');
 
     function mkdirSrc (path) {
         mkdir(`${path}/src/assets`);
