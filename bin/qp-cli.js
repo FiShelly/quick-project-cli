@@ -223,9 +223,9 @@ function createApplication (app_name, path) {
     const mainJs = loadTemplate('src/main.js');
     let webpackConfig = loadTemplate('file/webpack.config.js');
     let webpackBuild = loadTemplate('file/webpack.build.js');
-    const vueConfig = loadTemplate('file/vue.config.js');
-    const sassConfig = loadTemplate('file/sass.config.js');
-    const lessConfig = loadTemplate('file/less.config.js');
+    const vueConfig = loadTemplate('file/vue.config');
+    const sassConfig = loadTemplate('file/sass.config');
+    const lessConfig = loadTemplate('file/less.config');
     const server = loadTemplate('file/server.js');
 
     //html
