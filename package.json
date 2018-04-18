@@ -1,6 +1,6 @@
 {
   "name": "quick-project-cli",
-  "version": "0.1.15",
+  "version": "0.1.16",
   "description": "a quick seed project for js or vue or react.etc.",
   "main": "bin/qp-cli",
   "scripts": {
