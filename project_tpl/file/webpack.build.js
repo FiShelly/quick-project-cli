@@ -14,22 +14,35 @@ module.exports = {
         publicPath: './',
         libraryTarget: 'umd'
     },
-
+    resolve: {
+        extensions: ['.js', '.json', '.sass', '.scss', '.less', 'jsx', '.vue'],
+        alias: {
+            ${aliasVueConfig}
+            'assets': path.resolve(__dirname, './src/assets'),
+            'components': path.resolve(__dirname, './src/components'),
+        }
+    },
     module: {
-        loaders: [
+        rules: [
             {
-                test: /\.js$/,
-                loader: ['babel-loader'],
-                exclude: [path.resolve('./node_modules')] // 不需要编译node_modules下的js,
+                test: /\.js$/, //用babel编译jsx和es6
+                exclude: /node_modules/,
+                loader: 'babel-loader',
+                options: {
+                    cacheDirectory: true,
+                    presets: ['es2015', 'react'],
+                    plugins: [
+                        ["transform-object-rest-spread"],
+                        ["transform-runtime"]
+                    ]
+                }
             },
-            {
-                test: /\.(scss|css)$/,
-                use:[ 'style-loader','css-loader','sass-loader'],
-            },
+${jsConfig}
+${cssConfig}
             {
                 test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
                 loader: 'file-loader',
-                options:{
+                options: {
                     limit: 10000,
                     name: 'image/[name].[ext]?[hash]'
                 }
@@ -52,10 +65,6 @@ module.exports = {
         new webpack.optimize.OccurrenceOrderPlugin(),
         new webpack.HotModuleReplacementPlugin(),
         new webpack.NoEmitOnErrorsPlugin(),
-        new webpack.ProvidePlugin({
-            $: "jquery",
-            jQuery: "jquery"
-        }),
         new HtmlWebpackPlugin({
             title: 'My App',
             filename: 'index.html',

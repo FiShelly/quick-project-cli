@@ -8,7 +8,8 @@ var app = express();
 var compiler = webpack(config);
 
 const options = {
-    target: 'http://localhost:4000',
+
+    target: 'http://cms.cmsdev',
     changeOrigin: true,
     pathRewrite: {
         '^/api': '/api'
@@ -31,6 +32,6 @@ app.use(require('webpack-hot-middleware')(compiler));
 
 app.use(express.static(__dirname));
 
-app.listen(4000, function () {
-    console.log('Server listening on http://localhost:4000, Ctrl+C to stop');
+app.listen(3000, function () {
+    console.log('Server listening on http://localhost:3000, Ctrl+C to stop');
 });

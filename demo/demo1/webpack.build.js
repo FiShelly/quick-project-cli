@@ -1,36 +1,26 @@
-const path = require('path');
 const webpack = require('webpack');
+const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-
 module.exports = {
-
-    devtool: 'inline-source-map',
+    devtool: 'source-map',
 
     entry: [
-        'webpack-hot-middleware/client',
-        'webpack/hot/only-dev-server',
         path.join(__dirname, 'src/main.js')
     ],
 
     output: {
-        path: __dirname + '/__build__',
-        publicPath: '/__build__/',
-        filename: 'bundle.js'
+        path: path.resolve(__dirname, './dist'),
+        filename: `js/[name].js`,
+        publicPath: './',
+        libraryTarget: 'umd'
     },
-    resolve: {
-        extensions: ['.js', '.json', '.sass', '.scss', '.less', 'jsx', '.vue'],
-        alias: {
-            ${aliasVueConfig}
-            'assets': path.resolve(__dirname, './src/assets'),
-            'components': path.resolve(__dirname, './src/components'),
-        }
-    },
+
     module: {
         rules: [
             {
-                test: /\.js$/, //用babel编译jsx和es6
-                exclude: /node_modules/,
-                loader: 'babel-loader',
+                test: /\.js$/,
+                loader: ['babel-loader'],
+                exclude: [path.resolve('./node_modules')],
                 options: {
                     cacheDirectory: true,
                     presets: ['es2015', 'react'],
@@ -40,14 +30,20 @@ module.exports = {
                     ]
                 }
             },
-${jsConfig}
-${cssConfig}
+            {
+                test: /\.vue$/,
+                loader: 'vue-loader'
+            },
+            {
+                test: /\.(less|css)$/,
+                use: ['style-loader', 'css-loader?sourceMap', 'less-loader?sourceMap']
+            },
             {
                 test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
                 loader: 'file-loader',
                 options: {
                     limit: 10000,
-                    name: '[name].[ext]?[hash]'
+                    name: 'image/[name].[ext]?[hash]'
                 }
             }
         ]
@@ -56,8 +52,14 @@ ${cssConfig}
     plugins: [
         new webpack.DefinePlugin({
             'process.env': {
-                NODE_ENV: '"dev"'
+                NODE_ENV: '"production"'
             }
+        }),
+        new webpack.optimize.UglifyJsPlugin({
+            compress: {
+                warnings: false
+            },
+            sourceMap: true
         }),
         new webpack.optimize.OccurrenceOrderPlugin(),
         new webpack.HotModuleReplacementPlugin(),
@@ -69,5 +71,5 @@ ${cssConfig}
             inject: true,
         })
     ]
-
 };
+

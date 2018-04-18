@@ -17,31 +17,30 @@ module.exports = {
         publicPath: '/__build__/',
         filename: 'bundle.js'
     },
-    resolve: {
-        extensions: ['.js', '.json', '.sass', '.scss', '.less', 'jsx', '.vue'],
-        alias: {
-            ${aliasVueConfig}
-            'assets': path.resolve(__dirname, './src/assets'),
-            'components': path.resolve(__dirname, './src/components'),
-        }
-    },
+
     module: {
         rules: [
             {
-                test: /\.js$/, //用babel编译jsx和es6
-                exclude: /node_modules/,
-                loader: 'babel-loader',
+                test: /\.js$/,
+                loader: ['babel-loader'],
+                exclude: [path.resolve('./node_modules')],
                 options: {
                     cacheDirectory: true,
                     presets: ['es2015', 'react'],
                     plugins: [
-                        ["transform-object-rest-spread"],
-                        ["transform-runtime"]
+                        ['transform-object-rest-spread'],
+                        ['transform-runtime']
                     ]
                 }
             },
-${jsConfig}
-${cssConfig}
+            {
+                test: /\.vue$/,
+                loader: 'vue-loader'
+            },
+            {
+                test: /\.(less|css)$/,
+                use: ['style-loader', 'css-loader?sourceMap', 'less-loader?sourceMap']
+            },
             {
                 test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
                 loader: 'file-loader',

@@ -78,11 +78,10 @@ function loadTemplate (name) {
     return fs.readFileSync(path.join(__dirname, '..', 'project_tpl', name), 'utf-8');
 }
 
-
 /**
  * Copy template file.
  */
-function copy_template(from, to) {
+function copy_template (from, to) {
     from = path.join(__dirname, '..', 'project_tpl', from);
     write(to, fs.readFileSync(from, 'utf-8'));
 }
@@ -152,7 +151,7 @@ function confirm (msg, callback) {
 }
 
 function createApplication (app_name, path) {
-    let wait = 4;
+    let wait = 6;
 
     const pkg = {
         'name': app_name,
@@ -177,6 +176,7 @@ function createApplication (app_name, path) {
             'babel-preset-stage-2': '^6.22.0',
             'babel-register': '^6.22.0',
             'babel-preset-es2015': '^6.1.18',
+            'babel-preset-react': '^6.24.1',
             'babel-preset-stage-0': '^6.1.18',
             'babel-runtime': '^6.0.14',
             'css-loader': '^0.21.0',
@@ -221,8 +221,11 @@ function createApplication (app_name, path) {
 
     // JavaScript
     const mainJs = loadTemplate('src/main.js');
-    const webpackConfig = loadTemplate('file/webpack.config.js');
-    const webpackBuild = loadTemplate('file/webpack.build.js');
+    let webpackConfig = loadTemplate('file/webpack.config.js');
+    let webpackBuild = loadTemplate('file/webpack.build.js');
+    const vueConfig = loadTemplate('file/vue.config.js');
+    const sassConfig = loadTemplate('file/sass.config.js');
+    const lessConfig = loadTemplate('file/less.config.js');
     const server = loadTemplate('file/server.js');
 
     //html
@@ -235,12 +238,51 @@ function createApplication (app_name, path) {
 
     function mkdirSrc (path) {
         mkdir(`${path}/src/assets`);
-        mkdir(`${path}/src/components`);
+        mkdir(`${path}/src/components`, (path) => {
+            switch (program.jsLib) {
+                case 'vue':
+                    write(`${path}/HelloWorld.vue`, loadTemplate('vuedemo/HelloWorld.vue'));
+                    break;
+                case 'react':
+                    write(`${path}/HelloWorld.js`, loadTemplate('reactdemo/HelloWorld.js'));
+                    break;
+                default:
+                    break;
+            }
+            setTimeout(() => {
+                complete();
+            });
+        });
         mkdir(`${path}/src/config`);
         mkdir(`${path}/src/page`);
         mkdir(`${path}/src/util`);
+        mkdir(`${path}/src/router`, (path) => {
+            switch (program.jsLib) {
+                case 'vue':
+                    write(`${path}/index.js`, loadTemplate('vuedemo/index.js'));
+                    break;
+                case 'react':
+                    break;
+                default:
+                    break;
+            }
+            setTimeout(() => {
+                complete();
+            });
+        });
         mkdir(`${path}/src`, (path) => {
-            write(`${path}/main.js`, mainJs);
+            switch (program.jsLib) {
+                case 'vue':
+                    write(`${path}/main.js`, loadTemplate('vuedemo/main.js'));
+                    write(`${path}/App.vue`, loadTemplate('vuedemo/App.vue'));
+                    break;
+                case 'react':
+                    write(`${path}/main.js`, loadTemplate('reactdemo/main.js'));
+                    break;
+                default:
+                    write(`${path}/main.js`, mainJs);
+                    break;
+            }
             setTimeout(() => {
                 complete();
             });
@@ -278,6 +320,13 @@ function createApplication (app_name, path) {
                 pkg.dependencies['vue'] = '^2';
                 pkg.dependencies['vue-router'] = '^2';
                 pkg.dependencies['vuex'] = '^2';
+                pkg.devDependencies['vue-loader'] = '^10.3.0';
+                pkg.devDependencies['vue-template-compiler'] = '^2.2.6';
+                pkg.devDependencies['vue-style-loader'] = '^1.0.0';
+                webpackConfig = webpackConfig.replace('${jsConfig}', vueConfig);
+                webpackBuild = webpackBuild.replace('${jsConfig}', vueConfig);
+                webpackConfig = webpackConfig.replace('${aliasVueConfig}', `'vue$$':'vue/dist/vue.js',`);
+                webpackBuild = webpackBuild.replace('${aliasVueConfig}', `'vue$$':'vue/dist/vue.js',`);
                 break;
             case 'react':
                 pkg.dependencies['react'] = '^15';
@@ -290,20 +339,27 @@ function createApplication (app_name, path) {
                 pkg.dependencies['redux-thunk'] = '^2';
                 break;
             default:
-                pkg.dependencies['jquery'] = '^3.3.1';
-                pkg.dependencies['moment'] = '^2.17.1';
                 break;
         }
+        webpackConfig = webpackConfig.replace('${jsConfig}', '');
+        webpackBuild = webpackBuild.replace('${jsConfig}', '');
+        webpackConfig = webpackConfig.replace('${aliasVueConfig}', ``);
+        webpackBuild = webpackBuild.replace('${aliasVueConfig}', ``);
+
 
         // CSS Engine support
         switch (program.css) {
             case 'sass':
                 pkg.devDependencies['node-sass'] = '^4.8.3';
                 pkg.devDependencies['sass-loader'] = '^6.0.7';
+                webpackConfig = webpackConfig.replace('${cssConfig}', sassConfig);
+                webpackBuild = webpackBuild.replace('${cssConfig}', sassConfig);
                 break;
             default:
                 pkg.devDependencies['less'] = '^2.5.3';
                 pkg.devDependencies['less-loader'] = '^2.2.1';
+                webpackConfig = webpackConfig.replace('${cssConfig}', lessConfig);
+                webpackBuild = webpackBuild.replace('${cssConfig}', lessConfig);
                 break;
         }
 
